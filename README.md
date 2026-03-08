@@ -1,0 +1,54 @@
+# Mouse Tracking for Reading (MoTR) – Modified Demo
+
+This is a modified version of [MoTR](https://github.com/wilcoxeg/MoTR) with **click-to-reveal** and character-based unblur:
+
+- **Reveal on click only:** Text unblurs only while the mouse button is held; release hides it.
+- **Reveal window:** 4 characters to the left and 14 characters to the right of the click position.
+- **Recording:** One log row per click with position, duration, and position relative to word boundaries. Mouse movement during a click is ignored; the reveal stays fixed at click-start.
+
+## Run the demo locally
+
+1. **Install Node.js** (v16.x recommended): https://nodejs.org/
+
+2. **Go to the demo folder:**
+   ```bash
+   cd run_motr_in_magpie/demo
+   ```
+
+3. **Install dependencies and run:**
+   ```bash
+   npm install
+   npm run serve
+   ```
+
+4. Open the URL shown in the terminal (e.g. `http://localhost:8080/`) in your browser.
+
+## Put this repo on your GitHub
+
+You need **Git** installed: https://git-scm.com/download/win
+
+1. **Create a new repository** on GitHub (e.g. `MoTR` or `MouseTracking-MoTR`). Do **not** add a README or .gitignore there.
+
+2. **Initialize git and push** from this folder (the one that contains `run_motr_in_magpie` and this README):
+
+   ```bash
+   cd C:\Seafile\ReadLabProjects\MouseTracking\Code\MoTR
+   git init
+   git add .
+   git commit -m "MoTR demo with click-to-reveal and 4/14 character unblur"
+   git branch -M main
+   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+   git push -u origin main
+   ```
+
+   Replace `YOUR_USERNAME` and `YOUR_REPO_NAME` with your GitHub username and repo name.
+
+3. To **run the demo from your GitHub repo** later: clone your repo, then `cd run_motr_in_magpie/demo`, run `npm install` and `npm run serve`.
+
+## Structure
+
+- `run_motr_in_magpie/demo/` – Runnable demo (Vue + Magpie) with the modified behaviour.
+- `run_motr_in_magpie/provo/` – Provo experiment `App.vue` (same logic; needs full Magpie setup to run).
+- `run_motr_in_magpie/attachment/` – Attachment experiment `App.vue` (same logic; needs full Magpie setup to run).
+
+Only the **demo** folder is set up to run with `npm install` and `npm run serve` from this repo.
