@@ -127,6 +127,18 @@ export default {
   }},
   computed: {
   },
+  created() {
+    const chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+    let id = '';
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      const bytes = new Uint8Array(10);
+      crypto.getRandomValues(bytes);
+      for (let i = 0; i < bytes.length; i++) id += chars[bytes[i] % chars.length];
+    } else {
+      for (let i = 0; i < 10; i++) id += chars[Math.floor(Math.random() * chars.length)];
+    }
+    this.$root.participantId = id;
+  },
   mounted() {
     document.addEventListener('mouseup', this.onRevealUp);
     document.addEventListener('mousemove', this.trackMovementDuringHold);

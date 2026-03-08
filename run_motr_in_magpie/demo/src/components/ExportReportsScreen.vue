@@ -11,6 +11,7 @@
 import { Screen, Slide, Wait } from 'magpie-base';
 import stringify from 'csv-stringify/lib/sync';
 import JSZip from 'jszip';
+import magpieConfig from '../magpie.config.js';
 
 function isFixationRow(row) {
   return row != null && (row.mousePositionX != null && row.mousePositionX !== '');
@@ -135,30 +136,31 @@ function buildInterestAreaReport(allRows) {
   });
 }
 
-function getResultsFolderName() {
+function getResultsFolderName(participantId) {
   const d = new Date();
   const pad = n => String(n).padStart(2, '0');
-  return `motr_results_${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
+  const datePart = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
+  const id = participantId && String(participantId) ? String(participantId) : 'unknown';
+  return `motr_results_${id}_${datePart}`;
 }
 
-function downloadResultsZip(fixationCsv, interestAreaCsv) {
-  return new Promise((resolve) => {
-    const zip = new JSZip();
-    const folderName = getResultsFolderName();
-    if (fixationCsv) zip.file(`${folderName}/fixation_report.csv`, fixationCsv);
-    if (interestAreaCsv) zip.file(`${folderName}/interest_area_report.csv`, interestAreaCsv);
-    zip.generateAsync({ type: 'blob' }).then(blob => {
-      const a = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      a.href = url;
-      a.download = `${folderName}.zip`;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      resolve();
-    });
+function buildResultsZipBlob(fixationCsv, interestAreaCsv, folderName) {
+  const zip = new JSZip();
+  if (fixationCsv) zip.file(`${folderName}/fixation_report.csv`, fixationCsv);
+  if (interestAreaCsv) zip.file(`${folderName}/interest_area_report.csv`, interestAreaCsv);
+  return zip.generateAsync({ type: 'blob' });
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result;
+      const base64 = dataUrl.indexOf(',') >= 0 ? dataUrl.split(',')[1] : dataUrl;
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
   });
 }
 
@@ -171,8 +173,25 @@ export default {
       const fixationCsv = buildFixationReport(allRows);
       const interestAreaCsv = buildInterestAreaReport(allRows);
 
+      const participantId = (this.$root && this.$root.participantId) || null;
+      const folderName = getResultsFolderName(participantId);
+
       if (fixationCsv || interestAreaCsv) {
-        await downloadResultsZip(fixationCsv, interestAreaCsv);
+        const blob = await buildResultsZipBlob(fixationCsv, interestAreaCsv, folderName);
+        const uploadUrl = magpieConfig.resultsUploadUrl;
+        if (uploadUrl && typeof uploadUrl === 'string' && uploadUrl.trim() !== '') {
+          try {
+            const zipBase64 = await blobToBase64(blob);
+            const res = await fetch(uploadUrl.trim(), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ participantId: participantId || 'unknown', zipBase64 })
+            });
+            if (!res.ok) throw new Error(res.statusText);
+          } catch (_) {
+            // Upload failed
+          }
+        }
       }
 
       this.$magpie.nextSlide();
