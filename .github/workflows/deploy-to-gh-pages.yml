@@ -20,6 +20,9 @@ jobs:
           npm install
           npm run build
 
+      - name: Add .nojekyll for GitHub Pages
+        run: touch run_motr_in_magpie/demo/dist/.nojekyll
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

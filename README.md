@@ -1,5 +1,8 @@
 # Mouse Tracking for Reading (MoTR) – Modified Demo
 
+**Live demo:** https://vkuperman.github.io/MoTR_Click/  
+If you see 404, see [PAGES_SETUP.md](PAGES_SETUP.md).
+
 This is a modified version of [MoTR](https://github.com/wilcoxeg/MoTR) with **click-to-reveal** and character-based unblur:
 
 - **Reveal on click only:** Text unblurs only while the mouse button is held; release hides it.
