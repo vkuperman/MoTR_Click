@@ -151,6 +151,7 @@
   <button style= "bottom:30%; transform: translate(-50%, -50%)" @click="$magpie.saveAndNextScreen();">Submit</button>
 </Screen>
 
+    <ExportReportsScreen />
     <SubmitResultsScreen />
   </Experiment>
 </template>
@@ -162,9 +163,11 @@ import provo_list2 from '../trials/provo_items_list2.tsv';
 import provo_list3 from '../trials/provo_items_list3.tsv';
 import provo_practice from '../trials/provo_items_practice.tsv';
 import _ from 'lodash';
+import ExportReportsScreen from '../../demo/src/components/ExportReportsScreen.vue';
 
 export default {
   name: 'App',
+  components: { ExportReportsScreen },
   data() {
     const lists = [provo_list1, provo_list2, provo_list3];
     const chosenItems = lists[Math.floor(Math.random() * lists.length)]; // randomly choose one of the lists
