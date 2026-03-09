@@ -1,9 +1,8 @@
 <template>
   <Screen title="Thank you">
-    <Slide>
+    <Slide v-if="!submitted">
       <p>
-        Thank you for participating! To get credit for this study, please type in your SONA ID here.
-        You can find it on the Linguistics SONA under <strong>My Profile &gt; Identity Code</strong>.
+        Thank you for participating in this study. Press Submit to complete.
       </p>
       <div style="margin-top: 1em;">
         <label>
@@ -20,6 +19,10 @@
           Submit
         </button>
       </div>
+    </Slide>
+    <Slide v-else>
+      <!-- Blank page after submit -->
+      <div></div>
     </Slide>
   </Screen>
 </template>
@@ -227,7 +230,8 @@ export default {
   components: { Screen, Slide },
   data() {
     return {
-      sonaId: ''
+      sonaId: '',
+      submitted: false
     };
   },
   methods: {
@@ -266,6 +270,7 @@ export default {
       if (this.sonaId) {
         this.$magpie.addExpData({ SonaId: this.sonaId });
       }
+      this.submitted = true;
       await this.exportAndNext();
     }
   }
