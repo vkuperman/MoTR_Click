@@ -124,6 +124,8 @@ export default {
       fakeCursorX: 0,
       fakeCursorY: 0,
       mouseMovedMoreThan5Px: false,
+      interestAreasByIndex: {},
+      nextFixationIndex: 1,
   }},
   computed: {
   },
@@ -231,6 +233,89 @@ export default {
       }
       return { lineNumber: null, positionInLine: null };
     },
+    computeInterestAreas() {
+      const spans = this.$el.querySelectorAll('.readingText span[data-index]');
+      if (!spans.length) {
+        this.interestAreasByIndex = {};
+        return;
+      }
+
+      const items = [];
+      let maxHeight = 0;
+      spans.forEach(span => {
+        const rect = span.getBoundingClientRect();
+        const index = Number(span.getAttribute('data-index'));
+        items.push({ index, rect });
+        if (rect.height > maxHeight) maxHeight = rect.height;
+      });
+
+      // Group spans into lines using a vertical tolerance.
+      const tol = 3;
+      const byLine = {};
+      for (const it of items) {
+        const key = Math.round(it.rect.top / tol) * tol;
+        if (!byLine[key]) byLine[key] = [];
+        byLine[key].push(it);
+      }
+
+      const lines = Object.values(byLine)
+        .map(line => line.sort((a, b) => a.rect.left - b.rect.left))
+        .sort((a, b) => a[0].rect.top - b[0].rect.top);
+
+      const areas = {};
+
+      lines.forEach((lineItems, lineIdx) => {
+        const n = lineItems.length;
+        if (!n) return;
+
+        for (let i = 0; i < n; i++) {
+          const curr = lineItems[i].rect;
+          const idx = lineItems[i].index;
+
+          let left;
+          let right;
+
+          if (i === 0 && n > 1) {
+            const next = lineItems[i + 1].rect;
+            const midNext = (curr.right + next.left) / 2;
+            left = curr.left;
+            right = midNext;
+          } else if (i === n - 1 && n > 1) {
+            const prev = lineItems[i - 1].rect;
+            const midPrev = (prev.right + curr.left) / 2;
+            left = midPrev;
+            right = curr.right;
+          } else if (n === 1) {
+            left = curr.left;
+            right = curr.right;
+          } else {
+            const prev = lineItems[i - 1].rect;
+            const next = lineItems[i + 1].rect;
+            left = (prev.right + curr.left) / 2;
+            right = (curr.right + next.left) / 2;
+          }
+
+          const top = curr.top - 0.5 * maxHeight;
+          const bottom = curr.bottom + 0.5 * maxHeight;
+
+          areas[idx] = {
+            left,
+            right,
+            top,
+            bottom,
+            lineNumber: lineIdx + 1
+          };
+        }
+
+        const firstIdx = lineItems[0].index;
+        const lineStartX = areas[firstIdx].left;
+        lineItems.forEach(it => {
+          areas[it.index].lineStartX = lineStartX;
+        });
+      });
+
+      this.interestAreasByIndex = areas;
+    },
     changeBack() {
       if (this.isClickHeld) {
         this.fakeCursorX = this.clickStartX;
@@ -283,21 +368,41 @@ export default {
       oval.style.left = `${x + (charsRight - charsLeft) / 2 * charWidth}px`;
       oval.style.top = `${ovalCenterY}px`;
 
-      const closest = this.getClosestWordWithin10px(x, y);
-      if (closest) {
+      // Ensure interest areas are computed.
+      if (!this.interestAreasByIndex || !Object.keys(this.interestAreasByIndex).length) {
+        this.computeInterestAreas();
+      }
+
+      let ia = null;
+      let iaIndex = null;
+      for (const key of Object.keys(this.interestAreasByIndex)) {
+        const a = this.interestAreasByIndex[key];
+        if (x >= a.left && x <= a.right && y >= a.top && y <= a.bottom) {
+          ia = a;
+          iaIndex = Number(key);
+          break;
+        }
+      }
+
+      if (ia && iaIndex != null) {
         oval.classList.remove('blank');
-        const rect = closest.rect;
-        const relX = rect.right > rect.left ? (x - rect.left) / (rect.right - rect.left) : null;
-        const relY = rect.bottom > rect.top ? (y - rect.top) / (rect.bottom - rect.top) : null;
-        this.clickWordIndex = closest.index;
-        this.clickWord = closest.word;
-        this.clickWordRect = rect;
-        this.relativeXInWord = relX;
-        this.relativeYInWord = relY;
-        const { lineNumber, positionInLine } = this.getWordLineAndPositionInLine(this.clickWordIndex);
+        const index = iaIndex;
+        const span = this.$el.querySelector(`.readingText span[data-index="${index}"]`);
+        const wordText = span ? span.innerHTML : null;
+
+        this.clickWordIndex = index;
+        this.clickWord = wordText;
+        this.clickWordRect = { top: ia.top, left: ia.left, bottom: ia.bottom, right: ia.right };
+
+        const width = ia.right - ia.left;
+        const height = ia.bottom - ia.top;
+        this.relativeXInWord = width > 0 ? (x - ia.left) / width : null;
+        this.relativeYInWord = height > 0 ? (y - ia.top) / height : null;
+
+        const { lineNumber, positionInLine } = this.getWordLineAndPositionInLine(index);
         this.clickLineNumber = lineNumber;
         this.clickPositionInLine = positionInLine;
-        this.currentIndex = this.clickWordIndex;
+        this.currentIndex = index;
       } else {
         oval.classList.add('blank');
         this.clickWordIndex = -1;
@@ -344,6 +449,7 @@ export default {
         clickDurationMs: durationMs,
         relativeXInWord: this.relativeXInWord,
         relativeYInWord: this.relativeYInWord,
+        fixationIndex: this.nextFixationIndex++,
       };
       if (this.clickWordRect) {
         payload.wordPositionTop = this.clickWordRect.top;
@@ -353,6 +459,30 @@ export default {
       }
       if (this.clickLineNumber != null) payload.line_number = this.clickLineNumber;
       if (this.clickPositionInLine != null) payload.position_in_line = this.clickPositionInLine;
+      const ia = (this.clickWordIndex != null && this.clickWordIndex !== -1 && this.interestAreasByIndex)
+        ? this.interestAreasByIndex[this.clickWordIndex]
+        : null;
+      if (ia) {
+        const x = this.clickStartX;
+        const wordLeft = ia.left;
+        const wordRight = ia.right;
+        const wordCenterX = (wordLeft + wordRight) / 2;
+        const lineStartX = ia.lineStartX != null ? ia.lineStartX : wordLeft;
+
+        const xFromWordLeftPx = x - wordLeft;
+        const xFromWordCenterPx = x - wordCenterX;
+        const xFromLineStartPx = x - lineStartX;
+
+        const { width: charWidth } = this.getCharSizePx();
+        const toChars = v => (charWidth && charWidth > 0 ? v / charWidth : null);
+
+        payload.xFromWordLeftPx = xFromWordLeftPx;
+        payload.xFromWordCenterPx = xFromWordCenterPx;
+        payload.xFromLineStartPx = xFromLineStartPx;
+        payload.xFromWordLeftChars = toChars(xFromWordLeftPx);
+        payload.xFromWordCenterChars = toChars(xFromWordCenterPx);
+        payload.xFromLineStartChars = toChars(xFromLineStartPx);
+      }
       payload.mouseMovedMoreThan5Px = this.mouseMovedMoreThan5Px;
       $magpie.addTrialData(payload);
       this.mouseMovedMoreThan5Px = false;

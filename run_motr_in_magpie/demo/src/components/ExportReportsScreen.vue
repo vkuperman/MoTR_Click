@@ -66,6 +66,8 @@ function buildInterestAreaReport(allRows) {
       let xDistanceFromPreviousClick = '';
       let firstClickXFromWordLeftChars = '';
       let firstClickXFromWordCenterChars = '';
+      let firstClickXFromLineStartPx = '';
+      let firstClickXFromLineStartChars = '';
       let wordText = '';
       let positionInText = wordIndex;
       let lineNumber = '';
@@ -89,6 +91,13 @@ function buildInterestAreaReport(allRows) {
           firstClickXFromWordLeftChars = ((firstClick.mousePositionX - wordLeft) / charWidth).toFixed(4);
           const centerX = (wordLeft + wordRight) / 2;
           firstClickXFromWordCenterChars = ((firstClick.mousePositionX - centerX) / charWidth).toFixed(4);
+        }
+
+        if (firstClick.xFromLineStartPx != null) {
+          firstClickXFromLineStartPx = Number(firstClick.xFromLineStartPx).toFixed(2);
+        }
+        if (firstClick.xFromLineStartChars != null) {
+          firstClickXFromLineStartChars = Number(firstClick.xFromLineStartChars).toFixed(4);
         }
 
         const prevClicks = rows.filter(r => (r.responseTime || 0) < (firstClick.responseTime || 0) && r.Index != null && Number(r.Index) !== wordIndex);
@@ -124,7 +133,9 @@ function buildInterestAreaReport(allRows) {
         next_click_regression: nextClickRegression,
         x_distance_from_previous_click: xDistanceFromPreviousClick,
         first_click_x_from_word_left_chars: firstClickXFromWordLeftChars,
-        first_click_x_from_word_center_chars: firstClickXFromWordCenterChars
+        first_click_x_from_word_center_chars: firstClickXFromWordCenterChars,
+        first_click_x_from_line_start_px: firstClickXFromLineStartPx,
+        first_click_x_from_line_start_chars: firstClickXFromLineStartChars
       });
     }
   }
