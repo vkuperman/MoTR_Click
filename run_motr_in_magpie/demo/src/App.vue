@@ -126,6 +126,7 @@ export default {
       mouseMovedMoreThan5Px: false,
       interestAreasByIndex: {},
       nextFixationIndex: 1,
+      lastItemId: null,
   }},
   computed: {
   },
@@ -342,6 +343,18 @@ export default {
       this.isClickHeld = true;
       const x = e.clientX;
       const y = e.clientY;
+
+       // Detect new text (ItemId change) and reset fixation index and interest areas.
+      const itemInput = this.$el.querySelector(".item_id");
+      if (itemInput) {
+        const itemId = itemInput.value;
+        if (this.lastItemId === null || this.lastItemId !== itemId) {
+          this.nextFixationIndex = 1;
+          this.interestAreasByIndex = {};
+          this.lastItemId = itemId;
+        }
+      }
+
       this.clickStartTime = performance.now();
       this.clickStartX = x;
       this.clickStartY = y;

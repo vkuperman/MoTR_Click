@@ -20,8 +20,26 @@ function isFixationRow(row) {
 function buildFixationReport(allRows) {
   const fixationRows = allRows.filter(isFixationRow);
   if (fixationRows.length === 0) return '';
-  // Ensure fixations are ordered in time (scanpath order), not by word.
-  fixationRows.sort((a, b) => (a.responseTime || 0) - (b.responseTime || 0));
+  // Order fixations by text (ItemId) in the order they were read,
+  // and within each text by fixation time (scanpath order).
+  const firstTimeByItem = {};
+  for (const row of fixationRows) {
+    const id = row.ItemId != null && row.ItemId !== '' ? row.ItemId : 'NO_ITEM';
+    const t = row.responseTime || 0;
+    if (firstTimeByItem[id] == null || t < firstTimeByItem[id]) {
+      firstTimeByItem[id] = t;
+    }
+  }
+  fixationRows.sort((a, b) => {
+    const idA = a.ItemId != null && a.ItemId !== '' ? a.ItemId : 'NO_ITEM';
+    const idB = b.ItemId != null && b.ItemId !== '' ? b.ItemId : 'NO_ITEM';
+    const firstA = firstTimeByItem[idA] || 0;
+    const firstB = firstTimeByItem[idB] || 0;
+    if (firstA !== firstB) return firstA - firstB;
+    const tA = a.responseTime || 0;
+    const tB = b.responseTime || 0;
+    return tA - tB;
+  });
   return stringify(fixationRows, {
     columns: Object.keys(fixationRows[0]),
     header: true
@@ -40,7 +58,13 @@ function buildInterestAreaReport(allRows) {
   }
 
   const reportRows = [];
+  const firstTimeByItem = {};
   for (const itemId of Object.keys(byItem)) {
+    const rowsForItem = byItem[itemId];
+    firstTimeByItem[itemId] = Math.min(...rowsForItem.map(r => r.responseTime || 0));
+  }
+
+  for (const itemId of Object.keys(byItem).sort((a, b) => (firstTimeByItem[a] || 0) - (firstTimeByItem[b] || 0))) {
     const rows = byItem[itemId];
     const fromTotal = Math.max(0, ...rows.map(r => r.totalWordsInItem).filter(w => w != null && w > 0));
     const fromMaxIndex = Math.max(0, ...rows.map(r => (r.Index != null && r.Index >= 1 ? Number(r.Index) : 0)));
