@@ -90,8 +90,8 @@
             ">
           <br> By clicking on the button below you consent to participating in this study: <br><br>
           <br />
-          <button 
-            @click="$magpie.addExpData({ SubjectId: $magpie.measurements.SubjectID, experiment_start_time: new Date().toISOString() }); $magpie.nextScreen()">
+          <button
+            @click="$magpie.addExpData({ SubjectId: $magpie.measurements.SubjectID, SubjectID: $magpie.measurements.SubjectID, SonaId: $magpie.measurements.SubjectID, experiment_start_time: new Date().toISOString() }); $magpie.nextScreen()">
             Proceed
           </button>
 
@@ -146,7 +146,7 @@
             </template>
           </div>
           
-          <button v-if="$magpie.measurements.response" style="transform: translate(-50%, -50%)" @click="toggleDivs(); $magpie.saveAndNextScreen()">
+          <button v-if="$magpie.measurements.response" style="transform: translate(-50%, -50%)" @click="recordResponse(trial); toggleDivs(); $magpie.saveAndNextScreen()">
             Next
           </button>
         </Slide>
@@ -540,6 +540,15 @@ export default {
         window_inner_width: window.innerWidth,
         window_inner_height: window.innerHeight
       };
+    },
+    recordResponse(trial) {
+      const m = this.$magpie && this.$magpie.measurements ? this.$magpie.measurements : null;
+      if (!m || !m.response) return;
+      const itemId = trial.item_id != null ? trial.item_id : trial.ItemId;
+      this.$magpie.addTrialData({
+        ItemId: itemId,
+        response: String(m.response)
+      });
     }
   },
 };
