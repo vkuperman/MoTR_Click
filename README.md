@@ -53,5 +53,6 @@ You need **Git** installed: https://git-scm.com/download/win
 - `run_motr_in_magpie/demo/` – Runnable demo (Vue + Magpie) with the modified behaviour.
 - `run_motr_in_magpie/provo/` – Provo experiment `App.vue` (same logic; needs full Magpie setup to run).
 - `run_motr_in_magpie/attachment/` – Attachment experiment `App.vue` (same logic; needs full Magpie setup to run).
+- `api/` – Upload-results serverless API (email + optional GitHub storage). See [api/README.md](api/README.md) for env vars and saving reports to GitHub.
 
 Only the **demo** folder is set up to run with `npm install` and `npm run serve` from this repo.
