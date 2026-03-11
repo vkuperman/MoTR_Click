@@ -14,58 +14,75 @@
         <div style="width: 40em; margin: auto;">
 
         <div style="background-color: lightgrey; padding: 10px;">
-            <b> Information About this Study </b>
+            <b>Letter of Information and Consent</b><br>
+            Mouse- and eye-tracking
         </div>
         <p>
-          We would like to ask you if you are willing to participate in our research project. Your participation is voluntary. Please read the text below carefully and ask the conducting person about anything you do not understand or would like to know.
+          <b>Principal Investigator:</b><br>
+          Dr. Victor Kuperman, Dept. of Linguistics and Languages<br>
+          McMaster University; Email: vickup@mcmaster.ca, 905-525-9140 x20384
         <br><br>
-          <b>What is investigated and how?</b> You are being asked to take part in a research study being done by Ethan Wilcox, a researcher at the Swiss Federal Institute of Technology. This study will help us learn about how people read. It will take you around 20 minutes to complete.
+          <b>Co-Investigator:</b><br>
+          Dr. Emalie Hendel, Dept. of Linguistics and Languages<br>
+          McMaster University, Email: hendele@mcmaster.ca
         <br><br>
-          <b>Who can participate?</b> You can participate only if you are an adult native speaker of English.
+          <b>Purpose of the Study:</b> The purpose of this study is to explore whether a new mouse-tracking paradigm can accurately measure text reading behaviours. You are invited to participate in this study, which investigates a new mouse-tracking paradigm during text reading. We hope to learn if mouse-tracking can be used as a quick and accurate substitute for other measures of reading behaviours.
         <br><br>
-         <b>What am I supposed to do as a participant?</b> If you choose to be in the study, you will use the computer mouse to read sentences in English and answer questions about them.
+          <b>What is mouse-tracking?</b><br>
+          Mouse-tracking uses an online platform to register the position on the screen where you click the mouse, and the duration for which you hold that position. In a mouse-tracking paradigm, all text is blurred until you click on a word. Upon clicking, a small, clear window appears, allowing you to read that portion of the text. You must continue clicking around the screen to read the entirety of the text. Mouse-click information can inform researchers about which words are being viewed and for how long. This allows researchers to investigate the cognitive processes used to read and understand written texts.
         <br><br>
-          <b>What are my rights during participation?</b> Your participation in this study is voluntary. If you choose to participate, you may change your mind and leave the study at any time by closing the web page without specifying reasons and without any disadvantages.
+          <b>What will happen during the study?</b><br>
+          This experiment will take place online. You will be asked to provide some demographic information as well as information about your reading and language background. You will then read a series of texts which are presented with the blurred mouse-tracking method. Your mouse clicks will be recorded while you read the texts. After reading each text, you will be asked to answer some comprehension questions. The session will take approximately 60 minutes.
         <br><br>
-          <b>What risks and benefits can I expect?</b> There are no foreseeable risks for participating in this study.
+          We will start by asking you to fill out a questionnaire consisting of personal information, such as age, gender, handedness, the presence of visual or reading problems, and such. Then you will proceed to a series of tests that will measure a selection of your reading habits, how you feel at the moment, and some general cognitive skills. These tests will be administered by the experimenter either orally or as questionnaires that you will need to fill in.
         <br><br>
-          <b>Will I be compensated for participating?</b> If you participate you will be compensated for your time following the amount specified on prolific.co.
+          This experiment will take place online. Prior to beginning the experiment, you will be asked to give consent by reading this form and pressing a button. You will also be asked to fill out a demographic questionnaire asking about basic demographic information (e.g. age, gender, the presence of visual or reading problems) and language and reading background (e.g. languages spoken, age of acquisition of each language, number of hours spent reading per week in each language).
         <br><br>
-          <b>What data is collected from me and how is it used?</b> During this study, we will track the position of your mouse on screen. The data from this study may be presented at scientific conferences and published in scientific journals, as well as in online repositories. All data will remain anonymous. Members of the ETH Zurich Ethics Commission may access the original data for examination purposes. Strict confidentiality will be observed at any time.
+          For the experiment, you will use your computer mouse to click through and read the texts on the screen. You will then answer the comprehension questions by using the keyboard.
         <br><br>
-          <b> What are my rights to my personal data? </b> You can request information about the personal data collected from you at any time and without giving reasons. You can also request that it be rectified, handed over to you, barred for processing or erased. To do so, please contact the person indicated below.
+          <b>Potential Harms, Risks or Discomforts:</b><br>
+          There are no known harms or risks associated with the usage of the mouse-tracking technology that we are employing. The present study does require you to sit still and remain focused for a considerable period of time. This study might require you to sit and look at a screen to read texts for up to 60 minutes, which may cause you to become fatigued. You may take a break at any time during the experiment. Also, you may feel upset or worried about your level of performance. We assure you that your best effort is always sufficient. Please note that in rare cases researchers who conduct the experiment may additionally have other academic or professional relationships with you. This may be a source of discomfort for you. It is your informed choice whether to volunteer for an experiment with a potential conflict of interest. If you choose to participate in this experiment and to sign the informed consent form below, you will have the right to withdraw without explanation or penalty, and with the full credit for the experiment (see explanation below).
         <br><br>
-          <b>Who funds this study?</b> This study is funded by an ETH Postdoctoral Fellowship grant, awarded to Ethan Wilcox.
+          <b>Potential Benefits:</b><br>
+          The results of this research will not directly benefit you in any way. We hope to learn more about how words in English are processed.
         <br><br>
-          <b> How am I insured? </b> Although there are no foreseeable risks for participation, any adverse health effects that are directly caused by a study and can be demonstrated to be attributable to fault on the part of the project team or ETH Zurich are covered by ETH's liability insurance.
+          <b>Incentive/Payment or Reimbursement:</b><br>
+          Participants will earn 0.5 credits per 30 minutes of experiment participation, for a total of 1 full credit.
         <br><br>
-          <b> Who reviewed this study?  </b> This study was examined by the ETH Zurich Ethics Commission as proposal EK 2023-N-03
-
+          <b>Confidentiality:</b><br>
+          All personal information we attain will remain highly confidential. Within this study, you will be identified as a participant number. Any personal information you provide will only be accessible to the principal investigators and co-investigators at McMaster, as well as research assistants. All information will be strictly secured in a locked cabinet or on a password-protected computer. No publication or discussion regarding this study will contain any personal and/or identifying information. As requested by the federal Tri-Council funding agencies and policies, we will retain your data for at least 5 years. Once out of active use, the electronic data will be archived on a secure server in the McMaster research lab.
         <br><br>
-          <b> Complaints Office:</b> The secretariat of the ETH Zurich Ethics Committee is available to help you with complaints in connection with your participation. Contact: ethics@sl.ethz.ch or 0041 44 632 85 72.
+          <b>Participation and Withdrawal:</b><br>
+          Your participation in this experiment is entirely optional and you can choose to leave at any time without penalization. If you wish to withdraw, you can let the researchers know and all of your data will be discarded. You are able to withdraw your data on or before August 31, 2027.
         <br><br>
-          <b> General Contact: </b> Ethan Gotlieb Wilcox, Department of Computer Science, ETH Zurich, OAS K.20, Binzmühlestrasse 13, 8050 Zürich, Switzerland, ethan.wilcox@inf.ethz.ch <br>
+          <b>Information about the Study Results:</b><br>
+          If you have questions or need more information about the study itself, please contact Victor Kuperman at vickup@mcmaster.ca. Results of studies will also be publicized at https://readlab.humanities.mcmaster.ca/.
+        <br><br>
+          <b>Questions about the Study:</b><br>
+          If you have questions or need more information about the study itself, please contact me at:
+        <br><br>
+          Dr. Victor Kuperman<br>
+          vickup@mcmaster.ca
+        <br><br>
+          This study has been reviewed by the McMaster University Research Ethics Board#: 7316 and received ethics clearance. If you have concerns or questions about your rights as a participant or about the way the study is conducted, please contact: McMaster Research Ethics, Telephone: (905) 525-9140 ext. 23142, E-mail: mreb@mcmaster.ca.
+        <br><br>
+          <b>Consent:</b>
         </p>
-
+        <div style="padding-left: 30px">• I have read and understood the information presented in the information letter about a study being conducted by Dr. Victor Kuperman and Dr. Emalie Hendel from McMaster University.</div>
+        <div style="padding-left: 30px">• I have had the opportunity to ask questions about my involvement in this study and to receive additional details I requested.</div>
+        <div style="padding-left: 30px">• By submitting responses for this experiment, I declare that I have read and agree to the terms presented in this information letter.</div>
+        <div style="padding-left: 30px">• I understand that I may withdraw from the study before I submit my responses.</div>
+        <div style="padding-left: 30px">• I understand that once responses are submitted, I can withdraw my data on or before August 31, 2027.</div>
+        <div style="padding-left: 30px">• I agree to my data being published in an anonymized form, e.g., as part of a journal publication.</div>
+        <div style="padding-left: 30px">• I understand that by signing below, I declare that I have read and agree to the terms presented in this information letter.</div>
+        <div style="padding-left: 30px">• I have been given a copy of this form.</div>
+        <div style="padding-left: 30px">• I agree to participate in the study.</div>
         <br>
-        <div style="background-color: lightgrey; padding: 10px;">
-            <b> Consent Form </b>
-        </div>
-        <br>
-        I, the participant, confirm by clicking the button below: <br>
-        <div style="padding-left: 30px"> • I have read and understood the study information. My questions have been answered completely and to my satisfaction. </div>
-        <div style="padding-left: 30px">• I comply with the inclusion and exclusion criteria for participation described above. I am aware of the requirements and restrictions to be observed during the study. </div>
-        <div style="padding-left: 30px">• I have had enough time to decide about my participation. </div>
-        <div style="padding-left: 30px">• I participate in this study voluntarily and consent that my personal data be used as described above.</div>
-        <div style="padding-left: 30px">• I understand that I can stop participating at any moment.</div>
+        <p>Thank you for your help!</p>
         <br>
 
-          <tr>
-          <td>Please enter your Prolific ID to continue:&nbsp</td><td><input name="TurkID" type="text" class="obligatory" v-model="$magpie.measurements.SubjectID"/></td>
-          </tr>
-          <tr>
-
-          </tr>
+          <p>Type in your SONA ID here. It is a 5-digit number found on Linguistics SONA under My Profile &gt; Identity Code.</p>
+          <p><input name="SonaID" type="text" class="obligatory" v-model="$magpie.measurements.SubjectID" placeholder="SONA ID"/></p>
           </div>
           <div v-if="
             $magpie.measurements.SubjectID&&
