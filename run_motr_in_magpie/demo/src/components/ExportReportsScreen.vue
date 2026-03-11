@@ -107,80 +107,78 @@ function getExpDataFields(expData, allRows, sessionTimes) {
   };
 }
 
+const FIXATION_CSV_COLUMNS = [
+  'participant_id', 'SONAId', 'ItemId', 'text_presentation_order', 'WordIndex', 'Word',
+  'responseTime', 'mousePositionX', 'mousePositionY', 'clickDurationMs',
+  'relativeXInWord', 'relativeYInWord',
+  'wordPositionTop', 'wordPositionLeft', 'wordPositionBottom', 'wordPositionRight',
+  'line_number', 'position_in_line', 'response', 'position_in_text',
+  'device', 'hand', 'experiment_start_time', 'experiment_end_time', 'experiment_duration',
+  'experiment'
+];
+
 function buildFixationReport(allRows, participantId, expData, sessionTimes) {
   const fixationRows = allRows.filter(isFixationRow);
   if (fixationRows.length === 0) return '';
   const pid = participantId != null && String(participantId) ? String(participantId) : '';
   const expFields = getExpDataFields(expData, allRows, sessionTimes);
   const responseByItem = getResponseByItem(allRows);
-  const firstTimeByItem = {};
-  for (const row of fixationRows) {
-    const id = row.ItemId != null && row.ItemId !== '' ? row.ItemId : 'NO_ITEM';
-    const t = row.responseTime || 0;
-    if (firstTimeByItem[id] == null || t < firstTimeByItem[id]) {
-      firstTimeByItem[id] = t;
-    }
-  }
-  // Presentation order: prefer recorded presentation_order (trial index) from the app; fallback to order by first fixation time.
-  const itemOrderByTime = {};
-  Object.keys(firstTimeByItem)
-    .sort((a, b) => (firstTimeByItem[a] || 0) - (firstTimeByItem[b] || 0))
-    .forEach((id, idx) => {
-      itemOrderByTime[id] = idx + 1;
-    });
-  const itemOrderFromData = {};
-  for (const r of fixationRows) {
-    const id = r.ItemId != null && r.ItemId !== '' ? r.ItemId : 'NO_ITEM';
-    if (id && r.presentation_order != null && r.presentation_order !== '') {
-      const val = Number(r.presentation_order);
-      if (!Number.isNaN(val)) itemOrderFromData[id] = val;
-    }
-  }
 
-  fixationRows.sort((a, b) => {
-    const idA = a.ItemId != null && a.ItemId !== '' ? a.ItemId : 'NO_ITEM';
-    const idB = b.ItemId != null && b.ItemId !== '' ? b.ItemId : 'NO_ITEM';
-    const firstA = firstTimeByItem[idA] || 0;
-    const firstB = firstTimeByItem[idB] || 0;
-    if (firstA !== firstB) return firstA - firstB;
-    const tA = a.responseTime || 0;
-    const tB = b.responseTime || 0;
-    return tA - tB;
-  });
-  // Assign FixationIndex (ordinal within each text); reset at each ItemId.
-  let fixationIndexByItem = {};
-  const rowsWithId = fixationRows.map(r => {
+  const rowsWithMeta = fixationRows.map(r => {
     const itemId = r.ItemId != null && r.ItemId !== '' ? r.ItemId : 'NO_ITEM';
-    fixationIndexByItem[itemId] = (fixationIndexByItem[itemId] || 0) + 1;
     const positionInText = r.Index != null && r.Index !== '' ? r.Index : '';
-    const lineNumber = r.line_number != null && r.line_number !== '' ? r.line_number : '';
-    const positionInLine = r.position_in_line != null && r.position_in_line !== '' ? r.position_in_line : '';
-    const order = itemOrderFromData[itemId] != null ? itemOrderFromData[itemId] : (itemOrderByTime[itemId] != null ? itemOrderByTime[itemId] : '');
     return {
       ...r,
       participant_id: pid,
-      ItemOrder: order,
-      FixationIndex: fixationIndexByItem[itemId],
       position_in_text: positionInText,
-      line_number: lineNumber,
-      position_in_line: positionInLine,
       response: responseByItem[itemId] != null ? responseByItem[itemId] : '',
       ...expFields
     };
   });
-  const redundantIdColumns = ['SubjectId', 'SubjectID', 'SonaId', 'glb_SubjectId', 'glb_SubjectID', 'glb_SonaId', 'glb_SONAId'];
-  const keepIdColumns = ['SONAId', 'participant_id', 'ItemOrder'];
-  const rowsForCsv = rowsWithId.map(row => {
-    const copy = { ...row };
-    redundantIdColumns.forEach(k => { delete copy[k]; });
-    Object.keys(copy).forEach(k => {
-      if (k.startsWith('glb_')) delete copy[k];
-      else if ((/subjectid|sonaid/i.test(k) || k === 'SubjectId' || k === 'SubjectID' || k === 'SonaId') && !keepIdColumns.includes(k)) delete copy[k];
-    });
-    return copy;
+
+  const rowsForCsv = rowsWithMeta.map(row => {
+    const out = {};
+    const val = (key) => (row[key] != null && row[key] !== '' ? row[key] : '');
+    out.participant_id = pid;
+    out.SONAId = val('SONAId');
+    out.ItemId = val('ItemId');
+    out.text_presentation_order = row.presentation_order != null && row.presentation_order !== '' ? Number(row.presentation_order) : '';
+    out.WordIndex = row.Index != null && row.Index !== '' ? row.Index : '';
+    out.Word = val('Word');
+    out.responseTime = val('responseTime');
+    out.mousePositionX = val('mousePositionX');
+    out.mousePositionY = val('mousePositionY');
+    out.clickDurationMs = val('clickDurationMs');
+    out.relativeXInWord = val('relativeXInWord');
+    out.relativeYInWord = val('relativeYInWord');
+    out.wordPositionTop = val('wordPositionTop');
+    out.wordPositionLeft = val('wordPositionLeft');
+    out.wordPositionBottom = val('wordPositionBottom');
+    out.wordPositionRight = val('wordPositionRight');
+    out.line_number = val('line_number');
+    out.position_in_line = val('position_in_line');
+    out.response = val('response');
+    out.position_in_text = val('position_in_text');
+    out.device = val('device');
+    out.hand = val('hand');
+    out.experiment_start_time = val('experiment_start_time');
+    out.experiment_end_time = val('experiment_end_time');
+    out.experiment_duration = val('experiment_duration');
+    out.experiment = val('experiment');
+    return out;
   });
+
+  rowsForCsv.sort((a, b) => {
+    const poA = a.text_presentation_order === '' ? Infinity : Number(a.text_presentation_order);
+    const poB = b.text_presentation_order === '' ? Infinity : Number(b.text_presentation_order);
+    if (poA !== poB) return poA - poB;
+    const idxA = a.WordIndex === '' ? -1 : Number(a.WordIndex);
+    const idxB = b.WordIndex === '' ? -1 : Number(b.WordIndex);
+    return idxA - idxB;
+  });
+
   return stringify(rowsForCsv, {
-    columns: Object.keys(rowsForCsv[0]),
+    columns: FIXATION_CSV_COLUMNS,
     header: true
   });
 }
