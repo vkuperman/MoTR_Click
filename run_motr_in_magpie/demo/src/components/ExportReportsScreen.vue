@@ -99,8 +99,6 @@ function getExpDataFields(expData, allRows, sessionTimes) {
   return {
     device: exp.device != null && exp.device !== '' ? exp.device : fromRows.device,
     hand: exp.hand != null && exp.hand !== '' ? exp.hand : fromRows.hand,
-    SubjectId: sonaIdValue,
-    SonaId: sonaIdValue,
     SONAId: sonaIdValue,
     experiment: exp.experiment != null ? exp.experiment : (exp.Experiment != null ? exp.Experiment : ''),
     experiment_start_time: startTime,
@@ -123,6 +121,14 @@ function buildFixationReport(allRows, participantId, expData, sessionTimes) {
       firstTimeByItem[id] = t;
     }
   }
+  // Derive presentation order of items based on first fixation time.
+  const itemOrder = {};
+  Object.keys(firstTimeByItem)
+    .sort((a, b) => (firstTimeByItem[a] || 0) - (firstTimeByItem[b] || 0))
+    .forEach((id, idx) => {
+      itemOrder[id] = idx + 1; // 1-based order
+    });
+
   fixationRows.sort((a, b) => {
     const idA = a.ItemId != null && a.ItemId !== '' ? a.ItemId : 'NO_ITEM';
     const idB = b.ItemId != null && b.ItemId !== '' ? b.ItemId : 'NO_ITEM';
@@ -144,6 +150,7 @@ function buildFixationReport(allRows, participantId, expData, sessionTimes) {
     return {
       ...r,
       participant_id: pid,
+      ItemOrder: itemOrder[itemId] != null ? itemOrder[itemId] : '',
       FixationIndex: fixationIndexByItem[itemId],
       position_in_text: positionInText,
       line_number: lineNumber,
@@ -152,8 +159,15 @@ function buildFixationReport(allRows, participantId, expData, sessionTimes) {
       ...expFields
     };
   });
-  return stringify(rowsWithId, {
-    columns: Object.keys(rowsWithId[0]),
+  const redundantIdColumns = ['SubjectId', 'SubjectID', 'SonaId', 'glb_SubjectId', 'glb_SubjectID', 'glb_SonaId', 'glb_SONAId'];
+  const rowsForCsv = rowsWithId.map(row => {
+    const copy = { ...row };
+    redundantIdColumns.forEach(k => { delete copy[k]; });
+    Object.keys(copy).filter(k => k.startsWith('glb_')).forEach(k => { delete copy[k]; });
+    return copy;
+  });
+  return stringify(rowsForCsv, {
+    columns: Object.keys(rowsForCsv[0]),
     header: true
   });
 }
@@ -179,7 +193,9 @@ function buildInterestAreaReport(allRows, participantId, expData, sessionTimes) 
     firstTimeByItem[itemId] = Math.min(...rowsForItem.map(r => r.responseTime || 0));
   }
 
+  let itemOrderCounter = 0;
   for (const itemId of Object.keys(byItem).sort((a, b) => (firstTimeByItem[a] || 0) - (firstTimeByItem[b] || 0))) {
+    itemOrderCounter += 1;
     const rows = byItem[itemId];
     const fromTotal = Math.max(0, ...rows.map(r => r.totalWordsInItem).filter(w => w != null && w > 0));
     const fromMaxIndex = Math.max(0, ...rows.map(r => (r.Index != null && r.Index >= 1 ? Number(r.Index) : 0)));
@@ -267,8 +283,6 @@ function buildInterestAreaReport(allRows, participantId, expData, sessionTimes) 
         device: expFields.device,
         hand: expFields.hand,
         experiment_start_time: expFields.experiment_start_time,
-        SubjectId: expFields.SubjectId,
-        SonaId: expFields.SonaId,
         SONAId: expFields.SONAId,
         experiment_end_time: expFields.experiment_end_time,
         experiment_duration: expFields.experiment_duration,
@@ -276,6 +290,7 @@ function buildInterestAreaReport(allRows, participantId, expData, sessionTimes) 
         Experiment: experiment,
         Condition: condition,
         ItemId: itemId,
+        ItemOrder: itemOrderCounter,
         position_in_text: positionInText,
         line_number: lineNumber,
         position_in_line: positionInLine,
