@@ -30,6 +30,7 @@ function generateUniqueAlphanumericId() {
   return s;
 }
 
+// ItemId: identifier of the text/trial item (e.g. sentence or passage) being read; one item per screen before the comprehension question.
 function isFixationRow(row) {
   return row != null && (row.mousePositionX != null && row.mousePositionX !== '');
 }
@@ -68,7 +69,8 @@ function getExpDataFields(expData, allRows, sessionTimes) {
     device: exp.device != null && exp.device !== '' ? exp.device : fromRows.device,
     hand: exp.hand != null && exp.hand !== '' ? exp.hand : fromRows.hand,
     SubjectId: exp.SubjectId != null ? exp.SubjectId : (exp.SubjectID != null ? exp.SubjectID : ''),
-    SonaId: exp.SonaId != null ? exp.SonaId : '',
+    // SONA ID is recorded on the Welcome page as SubjectId/SubjectID (Provo); we do not read it from the Thank you screen.
+    SonaId: exp.SubjectId != null ? exp.SubjectId : (exp.SubjectID != null ? exp.SubjectID : ''),
     experiment: exp.experiment != null ? exp.experiment : (exp.Experiment != null ? exp.Experiment : ''),
     experiment_start_time: startTime,
     experiment_end_time: endTime,
@@ -100,9 +102,24 @@ function buildFixationReport(allRows, participantId, expData, sessionTimes) {
     const tB = b.responseTime || 0;
     return tA - tB;
   });
+  // Assign FixationIndex (ordinal within each text); reset at each ItemId.
+  let fixationIndexByItem = {};
   const rowsWithId = fixationRows.map(r => {
     const itemId = r.ItemId != null && r.ItemId !== '' ? r.ItemId : 'NO_ITEM';
-    return { participant_id: pid, ...r, response: responseByItem[itemId] != null ? responseByItem[itemId] : '', ...expFields };
+    fixationIndexByItem[itemId] = (fixationIndexByItem[itemId] || 0) + 1;
+    const positionInText = r.Index != null && r.Index !== '' ? r.Index : '';
+    const lineNumber = r.line_number != null && r.line_number !== '' ? r.line_number : '';
+    const positionInLine = r.position_in_line != null && r.position_in_line !== '' ? r.position_in_line : '';
+    return {
+      ...r,
+      participant_id: pid,
+      FixationIndex: fixationIndexByItem[itemId],
+      position_in_text: positionInText,
+      line_number: lineNumber,
+      position_in_line: positionInLine,
+      response: responseByItem[itemId] != null ? responseByItem[itemId] : '',
+      ...expFields
+    };
   });
   return stringify(rowsWithId, {
     columns: Object.keys(rowsWithId[0]),
@@ -350,9 +367,6 @@ export default {
       this.$magpie.nextSlide();
     },
     async submitSonaAndNext() {
-      if (this.sonaId) {
-        this.$magpie.addExpData({ SonaId: this.sonaId });
-      }
       this.submitted = true;
       await this.exportAndNext();
     },

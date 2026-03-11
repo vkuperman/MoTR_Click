@@ -217,6 +217,10 @@ export default {
       clickWordRect: null,
       relativeXInWord: null,
       relativeYInWord: null,
+      clickLineNumber: null,
+      clickPositionInLine: null,
+      interestAreasByIndex: {},
+      lastItemId: null,
   }},
   computed: {
   },
@@ -251,6 +255,89 @@ export default {
         }
       }
       return best;
+    },
+    computeInterestAreas() {
+      const spans = this.$el.querySelectorAll('.readingText span[data-index]');
+      if (!spans.length) {
+        this.interestAreasByIndex = {};
+        return;
+      }
+
+      const items = [];
+      let maxHeight = 0;
+      spans.forEach(span => {
+        const rect = span.getBoundingClientRect();
+        const index = Number(span.getAttribute('data-index'));
+        items.push({ index, rect });
+        if (rect.height > maxHeight) maxHeight = rect.height;
+      });
+
+      // Group spans into lines using a vertical tolerance.
+      const tol = 3;
+      const byLine = {};
+      for (const it of items) {
+        const key = Math.round(it.rect.top / tol) * tol;
+        if (!byLine[key]) byLine[key] = [];
+        byLine[key].push(it);
+      }
+
+      const lines = Object.values(byLine)
+        .map(line => line.sort((a, b) => a.rect.left - b.rect.left))
+        .sort((a, b) => a[0].rect.top - b[0].rect.top);
+
+      const areas = {};
+
+      lines.forEach((lineItems, lineIdx) => {
+        const n = lineItems.length;
+        if (!n) return;
+
+        for (let i = 0; i < n; i++) {
+          const curr = lineItems[i].rect;
+          const idx = lineItems[i].index;
+
+          let left;
+          let right;
+
+          if (i === 0 && n > 1) {
+            const next = lineItems[i + 1].rect;
+            const midNext = (curr.right + next.left) / 2;
+            left = curr.left;
+            right = midNext;
+          } else if (i === n - 1 && n > 1) {
+            const prev = lineItems[i - 1].rect;
+            const midPrev = (prev.right + curr.left) / 2;
+            left = midPrev;
+            right = curr.right;
+          } else if (n === 1) {
+            left = curr.left;
+            right = curr.right;
+          } else {
+            const prev = lineItems[i - 1].rect;
+            const next = lineItems[i + 1].rect;
+            left = (prev.right + curr.left) / 2;
+            right = (curr.right + next.left) / 2;
+          }
+
+          const top = curr.top - 0.5 * maxHeight;
+          const bottom = curr.bottom + 0.5 * maxHeight;
+
+          areas[idx] = {
+            left,
+            right,
+            top,
+            bottom,
+            lineNumber: lineIdx + 1
+          };
+        }
+
+        const firstIdx = lineItems[0].index;
+        const lineStartX = areas[firstIdx].left;
+        lineItems.forEach(it => {
+          areas[it.index].lineStartX = lineStartX;
+        });
+      });
+
+      this.interestAreasByIndex = areas;
     },
     changeBack() {
       if (this.isClickHeld) {
@@ -291,21 +378,51 @@ export default {
       oval.style.left = `${x + (charsRight - charsLeft) / 2 * charWidth}px`;
       oval.style.top = `${ovalCenterY}px`;
 
-      let elementAtCursor = document.elementFromPoint(x, y) && document.elementFromPoint(x, y).closest('span');
-      if (!elementAtCursor) {
-        elementAtCursor = document.elementFromPoint(x, y - 3) && document.elementFromPoint(x, y - 3).closest('span');
+      // Detect new text (ItemId change) and reset interest areas.
+      const itemInput = this.$el.querySelector(".item_id");
+      if (itemInput) {
+        const itemId = itemInput.value;
+        if (this.lastItemId === null || this.lastItemId !== itemId) {
+          this.interestAreasByIndex = {};
+          this.lastItemId = itemId;
+        }
       }
-      if (elementAtCursor) {
+
+      // Ensure interest areas are computed.
+      if (!this.interestAreasByIndex || !Object.keys(this.interestAreasByIndex).length) {
+        this.computeInterestAreas();
+      }
+
+      let ia = null;
+      let iaIndex = null;
+      for (const key of Object.keys(this.interestAreasByIndex)) {
+        const a = this.interestAreasByIndex[key];
+        if (x >= a.left && x <= a.right && y >= a.top && y <= a.bottom) {
+          ia = a;
+          iaIndex = Number(key);
+          break;
+        }
+      }
+
+      if (ia && iaIndex != null) {
         oval.classList.remove('blank');
-        const rect = elementAtCursor.getBoundingClientRect();
-        const relX = rect.width > 0 ? (x - rect.left) / rect.width : null;
-        const relY = rect.height > 0 ? (y - rect.top) / rect.height : null;
-        this.clickWordIndex = elementAtCursor.getAttribute('data-index');
-        this.clickWord = elementAtCursor.innerHTML;
-        this.clickWordRect = { top: rect.top, left: rect.left, bottom: rect.bottom, right: rect.right };
-        this.relativeXInWord = relX;
-        this.relativeYInWord = relY;
-        this.currentIndex = this.clickWordIndex;
+        const index = iaIndex;
+        const span = this.$el.querySelector(`.readingText span[data-index="${index}"]`);
+        const wordText = span ? span.innerHTML : null;
+
+        this.clickWordIndex = index;
+        this.clickWord = wordText;
+        this.clickWordRect = { top: ia.top, left: ia.left, bottom: ia.bottom, right: ia.right };
+
+        const width = ia.right - ia.left;
+        const height = ia.bottom - ia.top;
+        this.relativeXInWord = width > 0 ? (x - ia.left) / width : null;
+        this.relativeYInWord = height > 0 ? (y - ia.top) / height : null;
+
+        const { lineNumber, positionInLine } = this.getWordLineAndPositionInLine(index);
+        this.clickLineNumber = lineNumber;
+        this.clickPositionInLine = positionInLine;
+        this.currentIndex = index;
       } else {
         oval.classList.add('blank');
         this.clickWordIndex = -1;
@@ -313,8 +430,37 @@ export default {
         this.clickWordRect = null;
         this.relativeXInWord = null;
         this.relativeYInWord = null;
+        this.clickLineNumber = null;
+        this.clickPositionInLine = null;
         this.currentIndex = -1;
       }
+    },
+    getWordLineAndPositionInLine(wordIndex) {
+      const spans = this.$el.querySelectorAll('.readingText span[data-index]');
+      if (!spans.length) return { lineNumber: null, positionInLine: null };
+      const items = [];
+      for (let i = 0; i < spans.length; i++) {
+        const rect = spans[i].getBoundingClientRect();
+        const idx = spans[i].getAttribute('data-index');
+        items.push({ index: idx, top: rect.top, left: rect.left });
+      }
+      const tol = 3;
+      const byLine = {};
+      for (const it of items) {
+        const key = Math.round(it.top / tol) * tol;
+        if (!byLine[key]) byLine[key] = [];
+        byLine[key].push(it);
+      }
+      const lines = Object.keys(byLine).map(k => byLine[k]).sort((a, b) => a[0].top - b[0].top);
+      for (let l = 0; l < lines.length; l++) {
+        lines[l].sort((a, b) => a.left - b.left);
+        for (let p = 0; p < lines[l].length; p++) {
+          if (String(lines[l][p].index) === String(wordIndex)) {
+            return { lineNumber: l + 1, positionInLine: p + 1 };
+          }
+        }
+      }
+      return { lineNumber: null, positionInLine: null };
     },
     onRevealUp() {
       if (!this.isClickHeld) return;
@@ -351,6 +497,8 @@ export default {
         payload.wordPositionBottom = this.clickWordRect.bottom;
         payload.wordPositionRight = this.clickWordRect.right;
       }
+      if (this.clickLineNumber != null) payload.line_number = this.clickLineNumber;
+      if (this.clickPositionInLine != null) payload.position_in_line = this.clickPositionInLine;
       $magpie.addTrialData(payload);
       this.clickStartTime = null;
       this.clickStartX = null;
@@ -360,6 +508,8 @@ export default {
       this.clickWordRect = null;
       this.relativeXInWord = null;
       this.relativeYInWord = null;
+      this.clickLineNumber = null;
+      this.clickPositionInLine = null;
     },
     moveCursor(e) {
       if (this.isClickHeld) return;

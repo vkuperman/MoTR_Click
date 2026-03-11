@@ -23,6 +23,13 @@ Accepts `{ participantId: string, zipBase64: string }` and can send the results 
 
 Zips are written to the **main** branch under **Results/** with names like `Results/<participantId>_motr_results_<timestamp>.zip`. View them at `https://github.com/<owner>/<repo>/tree/main/Results`.
 
+## Reports in the zip
+
+- **fixation_report.csv** – one row per click (fixation); **interest_area_report.csv** – one row per word (interest area) per text.
+- **ItemId** – identifier of the text/trial item (the sentence or passage) being read; one item per screen before the comprehension question.
+- **SonaId** – SONA ID from the Welcome page (or thank-you screen if entered there).
+- Fixation report includes **FixationIndex** (ordinal fixation in that text, reset per item), **position_in_text**, **line_number**, **position_in_line**.
+
 ## Troubleshooting
 
 - Only email, no file in GitHub: ensure `GITHUB_TOKEN` is set and the deployment ran after adding it; token must have Contents write.
