@@ -485,6 +485,8 @@ export default {
           : '';
       const trialIndexEl = this.$el.querySelector(".trial_index");
       const presentationOrder = trialIndexEl && trialIndexEl.value !== '' ? parseInt(trialIndexEl.value, 10) : null;
+      const spans = this.$el.querySelectorAll('.readingText span[data-index]');
+      const totalWordsInItem = spans && spans.length ? spans.length : null;
       const payload = {
         Experiment: expEl.value,
         Condition: this.$el.querySelector(".condition_id").value,
@@ -497,6 +499,7 @@ export default {
         clickDurationMs: durationMs,
         relativeXInWord: this.relativeXInWord,
         relativeYInWord: this.relativeYInWord,
+        totalWordsInItem: totalWordsInItem,
         SubjectId: subjectId,
         SubjectID: subjectId,
         SonaId: subjectId

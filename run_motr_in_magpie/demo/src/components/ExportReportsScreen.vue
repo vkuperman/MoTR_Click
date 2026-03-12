@@ -108,13 +108,24 @@ function getExpDataFields(expData, allRows, sessionTimes) {
 }
 
 const FIXATION_CSV_COLUMNS = [
-  'participant_id', 'SONAId', 'ItemId', 'text_presentation_order', 'WordIndex', 'Word',
+  'participant_id', 'SONAId', 'Condition', 'ItemId', 'text_presentation_order', 'WordIndex', 'Word',
   'responseTime', 'mousePositionX', 'mousePositionY', 'clickDurationMs',
   'relativeXInWord', 'relativeYInWord',
   'wordPositionTop', 'wordPositionLeft', 'wordPositionBottom', 'wordPositionRight',
   'line_number', 'position_in_line', 'response', 'position_in_text',
   'device', 'hand', 'experiment_start_time', 'experiment_end_time', 'experiment_duration',
   'experiment'
+];
+
+const INTEREST_AREA_CSV_COLUMNS = [
+  'participant_id', 'SONAId', 'Condition', 'ItemId', 'text_presentation_order',
+  'word_index', 'word', 'response', 'position_in_text', 'line_number', 'position_in_line',
+  'click_count', 'skipped',
+  'first_click_x', 'first_click_duration_ms', 'total_duration_ms', 'next_click_regression',
+  'x_distance_from_previous_click_px', 'x_distance_from_previous_click_chars',
+  'first_click_x_from_word_left_chars', 'first_click_x_from_word_center_chars',
+  'first_click_x_from_line_start_px', 'first_click_x_from_line_start_chars',
+  'device', 'hand', 'experiment_start_time', 'experiment_end_time', 'experiment_duration'
 ];
 
 function buildFixationReport(allRows, participantId, expData, sessionTimes) {
@@ -141,6 +152,7 @@ function buildFixationReport(allRows, participantId, expData, sessionTimes) {
     const val = (key) => (row[key] != null && row[key] !== '' ? row[key] : '');
     out.participant_id = pid;
     out.SONAId = val('SONAId');
+    out.Condition = val('Condition');
     out.ItemId = val('ItemId');
     out.text_presentation_order = row.presentation_order != null && row.presentation_order !== '' ? Number(row.presentation_order) : '';
     out.WordIndex = row.Index != null && row.Index !== '' ? row.Index : '';
@@ -310,7 +322,7 @@ function buildInterestAreaReport(allRows, participantId, expData, sessionTimes) 
         Experiment: experiment,
         Condition: condition,
         ItemId: itemId,
-        ItemOrder: presentationOrderByItem[itemId] != null ? presentationOrderByItem[itemId] : itemOrderCounter,
+        text_presentation_order: presentationOrderByItem[itemId] != null ? presentationOrderByItem[itemId] : itemOrderCounter,
         position_in_text: positionInText,
         line_number: lineNumber,
         position_in_line: positionInLine,
@@ -333,8 +345,43 @@ function buildInterestAreaReport(allRows, participantId, expData, sessionTimes) 
   }
 
   if (reportRows.length === 0) return '';
-  return stringify(reportRows, {
-    columns: Object.keys(reportRows[0]),
+
+  const rowsForCsv = reportRows.map(row => {
+    const val = (key) => (row[key] != null && row[key] !== '' ? row[key] : '');
+    return {
+      participant_id: val('participant_id'),
+      SONAId: val('SONAId'),
+      Condition: val('Condition'),
+      ItemId: val('ItemId'),
+      text_presentation_order: val('text_presentation_order'),
+      word_index: val('word_index'),
+      word: val('word'),
+      response: val('response'),
+      position_in_text: val('position_in_text'),
+      line_number: val('line_number'),
+      position_in_line: val('position_in_line'),
+      click_count: val('click_count'),
+      skipped: val('skipped'),
+      first_click_x: val('first_click_x'),
+      first_click_duration_ms: val('first_click_duration_ms'),
+      total_duration_ms: val('total_duration_ms'),
+      next_click_regression: val('next_click_regression'),
+      x_distance_from_previous_click_px: val('x_distance_from_previous_click_px'),
+      x_distance_from_previous_click_chars: val('x_distance_from_previous_click_chars'),
+      first_click_x_from_word_left_chars: val('first_click_x_from_word_left_chars'),
+      first_click_x_from_word_center_chars: val('first_click_x_from_word_center_chars'),
+      first_click_x_from_line_start_px: val('first_click_x_from_line_start_px'),
+      first_click_x_from_line_start_chars: val('first_click_x_from_line_start_chars'),
+      device: val('device'),
+      hand: val('hand'),
+      experiment_start_time: val('experiment_start_time'),
+      experiment_end_time: val('experiment_end_time'),
+      experiment_duration: val('experiment_duration')
+    };
+  });
+
+  return stringify(rowsForCsv, {
+    columns: INTEREST_AREA_CSV_COLUMNS,
     header: true
   });
 }
