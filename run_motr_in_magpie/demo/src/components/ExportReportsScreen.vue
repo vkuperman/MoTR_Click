@@ -369,7 +369,8 @@ function buildInterestAreaReport(allRows, participantId, expData, sessionTimes) 
       ItemId: val('ItemId'),
       text_presentation_order: val('text_presentation_order'),
       word_index: val('word_index'),
-      word: val('word'),
+      // Only report a word when that word had at least one click.
+      word: (row.click_count != null && Number(row.click_count) > 0) ? val('word') : '',
       response: val('response'),
       position_in_text: val('position_in_text'),
       line_number: val('line_number'),
