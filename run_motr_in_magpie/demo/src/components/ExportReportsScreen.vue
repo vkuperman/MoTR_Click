@@ -225,8 +225,20 @@ function buildInterestAreaReport(allRows, participantId, expData, sessionTimes) 
     }
   }
 
+  // Sort items primarily by text presentation order, fallback to first-click time.
+  const sortedItemIds = Object.keys(byItem).sort((a, b) => {
+    const pa = presentationOrderByItem[a];
+    const pb = presentationOrderByItem[b];
+    if (pa != null && pb != null && pa !== pb) return pa - pb;
+    if (pa != null && pb == null) return -1;
+    if (pa == null && pb != null) return 1;
+    const ta = firstTimeByItem[a] || 0;
+    const tb = firstTimeByItem[b] || 0;
+    return ta - tb;
+  });
+
   let itemOrderCounter = 0;
-  for (const itemId of Object.keys(byItem).sort((a, b) => (firstTimeByItem[a] || 0) - (firstTimeByItem[b] || 0))) {
+  for (const itemId of sortedItemIds) {
     itemOrderCounter += 1;
     const rows = byItem[itemId];
     const fromTotal = Math.max(0, ...rows.map(r => r.totalWordsInItem).filter(w => w != null && w > 0));
@@ -378,6 +390,15 @@ function buildInterestAreaReport(allRows, participantId, expData, sessionTimes) 
       experiment_end_time: val('experiment_end_time'),
       experiment_duration: val('experiment_duration')
     };
+  });
+
+  rowsForCsv.sort((a, b) => {
+    const poA = a.text_presentation_order === '' ? Infinity : Number(a.text_presentation_order);
+    const poB = b.text_presentation_order === '' ? Infinity : Number(b.text_presentation_order);
+    if (poA !== poB) return poA - poB;
+    const wiA = a.word_index === '' ? -1 : Number(a.word_index);
+    const wiB = b.word_index === '' ? -1 : Number(b.word_index);
+    return wiA - wiB;
   });
 
   return stringify(rowsForCsv, {
