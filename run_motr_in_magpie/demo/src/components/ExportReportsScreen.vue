@@ -172,9 +172,9 @@ function buildFixationReport(allRows, participantId, expData, sessionTimes) {
     const poA = a.text_presentation_order === '' ? Infinity : Number(a.text_presentation_order);
     const poB = b.text_presentation_order === '' ? Infinity : Number(b.text_presentation_order);
     if (poA !== poB) return poA - poB;
-    const idxA = a.WordIndex === '' ? -1 : Number(a.WordIndex);
-    const idxB = b.WordIndex === '' ? -1 : Number(b.WordIndex);
-    return idxA - idxB;
+    const rtA = a.responseTime === '' ? Infinity : Number(a.responseTime);
+    const rtB = b.responseTime === '' ? Infinity : Number(b.responseTime);
+    return rtA - rtB;
   });
 
   return stringify(rowsForCsv, {
