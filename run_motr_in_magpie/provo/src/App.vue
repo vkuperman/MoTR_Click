@@ -287,9 +287,55 @@ export default {
 
       const areas = {};
 
+      // Compute vertical boundaries that tile the space between lines:
+      // - between lines: use midpoints
+      // - before first line / after last line: use half a line-gap.
+      const lineBounds = lines.map(lineItems => {
+        const tops = lineItems.map(li => li.rect.top);
+        const bottoms = lineItems.map(li => li.rect.bottom);
+        return {
+          top: Math.min(...tops),
+          bottom: Math.max(...bottoms)
+        };
+      });
+
+      const lineVerticals = [];
+      if (lineBounds.length === 1) {
+        // Single line: fall back to a small margin based on maxHeight.
+        const lb = lineBounds[0];
+        const top = lb.top - 0.5 * maxHeight;
+        const bottom = lb.bottom + 0.5 * maxHeight;
+        lineVerticals.push({ top, bottom });
+      } else {
+        const mids = [];
+        for (let i = 0; i < lineBounds.length - 1; i++) {
+          mids.push((lineBounds[i].bottom + lineBounds[i + 1].top) / 2);
+        }
+
+        for (let k = 0; k < lineBounds.length; k++) {
+          let top;
+          let bottom;
+          if (k === 0) {
+            const gap = lineBounds[1].top - lineBounds[0].bottom;
+            top = lineBounds[0].top - gap / 2;
+            bottom = mids[0];
+          } else if (k === lineBounds.length - 1) {
+            const gap = lineBounds[k].top - lineBounds[k - 1].bottom;
+            top = mids[k - 1];
+            bottom = lineBounds[k].bottom + gap / 2;
+          } else {
+            top = mids[k - 1];
+            bottom = mids[k];
+          }
+          lineVerticals.push({ top, bottom });
+        }
+      }
+
       lines.forEach((lineItems, lineIdx) => {
         const n = lineItems.length;
         if (!n) return;
+
+        const vBounds = lineVerticals[lineIdx];
 
         for (let i = 0; i < n; i++) {
           const curr = lineItems[i].rect;
@@ -318,8 +364,8 @@ export default {
             right = (curr.right + next.left) / 2;
           }
 
-          const top = curr.top - 0.5 * maxHeight;
-          const bottom = curr.bottom + 0.5 * maxHeight;
+          const top = vBounds.top;
+          const bottom = vBounds.bottom;
 
           areas[idx] = {
             left,
