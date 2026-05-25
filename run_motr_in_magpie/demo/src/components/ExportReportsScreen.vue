@@ -11,7 +11,10 @@
       </div>
     </Slide>
     <Slide v-else>
-      <p>
+      <p v-if="finalMessage">
+        {{ finalMessage }}
+      </p>
+      <p v-else>
         Thank you for participating in our study. Follow this URL to complete your submission and be redirected to Prolific:
         <a href="https://app.prolific.com/submissions/complete?cc=C1FQEQTP" target="_blank" rel="noopener">
           https://app.prolific.com/submissions/complete?cc=C1FQEQTP
@@ -634,7 +637,8 @@ export default {
   name: 'ExportReportsScreen',
   components: { Screen, Slide },
   props: {
-    skipSonaInput: { type: Boolean, default: false }
+    skipSonaInput: { type: Boolean, default: false },
+    finalMessage: { type: String, default: '' }
   },
   data() {
     return {
