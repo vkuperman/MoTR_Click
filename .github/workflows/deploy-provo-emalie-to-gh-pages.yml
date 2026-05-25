@@ -1,4 +1,4 @@
-name: Build and Deploy Provo (MoTR_Emalie) to GitHub Pages
+name: Build and Deploy Provo Experiments (MoTR_Emalie) to GitHub Pages
 on:
   push:
     branches: [ MoTR_Emalie ]
@@ -20,13 +20,22 @@ jobs:
           npm install
           npm run build
 
-      - name: Add .nojekyll for GitHub Pages
-        run: touch run_motr_in_magpie/provo/dist/.nojekyll
+      - name: Install and Build Provo SONA
+        run: |
+          cd run_motr_in_magpie/provo_SONA
+          npm install
+          npm run build
 
-      - name: Deploy Provo branch build to GitHub Pages
+      - name: Prepare GitHub Pages bundle
+        run: |
+          mkdir -p pages-dist/provo-emalie pages-dist/provo_SONA
+          cp -R run_motr_in_magpie/provo/dist/. pages-dist/provo-emalie/
+          cp -R run_motr_in_magpie/provo_SONA/dist/. pages-dist/provo_SONA/
+          touch pages-dist/.nojekyll
+
+      - name: Deploy Provo branch builds to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: run_motr_in_magpie/provo/dist
-          destination_dir: provo-emalie
+          publish_dir: pages-dist
           keep_files: true
