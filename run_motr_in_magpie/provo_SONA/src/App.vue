@@ -170,9 +170,9 @@
 
     <ExportReportsScreen
       :skip-sona-input="true"
+      :stay-on-final-slide="true"
       final-message="Thank you for participating. You may now close this page."
     />
-    <SubmitResultsScreen />
   </Experiment>
 </template>
 
