@@ -11,7 +11,7 @@
       </div>
     </Slide>
     <Slide v-else>
-      <p v-if="finalMessage">
+      <p v-if="finalMessage && exportComplete">
         {{ finalMessage }}
       </p>
       <p v-else>
@@ -638,12 +638,14 @@ export default {
   components: { Screen, Slide },
   props: {
     skipSonaInput: { type: Boolean, default: false },
-    finalMessage: { type: String, default: '' }
+    finalMessage: { type: String, default: '' },
+    stayOnFinalSlide: { type: Boolean, default: false }
   },
   data() {
     return {
       sonaId: '',
-      submitted: false
+      submitted: false,
+      exportComplete: false
     };
   },
   mounted() {
@@ -698,7 +700,10 @@ export default {
         }
       }
 
-      this.$magpie.nextSlide();
+      this.exportComplete = true;
+      if (!this.stayOnFinalSlide) {
+        this.$magpie.nextSlide();
+      }
     },
     async submitSonaAndNext() {
       this.submitted = true;
