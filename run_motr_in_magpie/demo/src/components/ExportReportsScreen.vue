@@ -11,7 +11,7 @@
       </div>
     </Slide>
     <Slide v-else>
-      <p v-if="finalMessage && exportComplete">
+      <p v-if="finalMessage">
         {{ finalMessage }}
       </p>
       <p v-else>
