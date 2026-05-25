@@ -172,7 +172,7 @@
       :skip-sona-input="true"
       final-message="Thank you for participating in our study. You may now close this page."
     />
-    <Screen title="Thank you">
+    <Screen>
       <p>Thank you for participating in our study. You may now close this page.</p>
     </Screen>
   </Experiment>

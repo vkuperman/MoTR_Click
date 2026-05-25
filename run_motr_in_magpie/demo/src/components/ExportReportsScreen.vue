@@ -15,10 +15,7 @@
         {{ finalMessage }}
       </p>
       <p v-else>
-        Thank you for participating in our study. Follow this URL to complete your submission and be redirected to Prolific:
-        <a href="https://app.prolific.com/submissions/complete?cc=C1FQEQTP" target="_blank" rel="noopener">
-          https://app.prolific.com/submissions/complete?cc=C1FQEQTP
-        </a>
+        Thank you for participating in our study.
       </p>
     </Slide>
   </Screen>
