@@ -11,8 +11,10 @@
       </div>
     </Slide>
     <Slide v-else>
-      <!-- Blank thank-you page (when skipSonaInput, export runs automatically) -->
-      <div></div>
+      <p v-if="finalMessage">
+        {{ finalMessage }}
+      </p>
+      <div v-else></div>
     </Slide>
   </Screen>
 </template>
@@ -612,7 +614,8 @@ export default {
   name: 'ExportReportsScreen',
   components: { Screen, Slide },
   props: {
-    skipSonaInput: { type: Boolean, default: false }
+    skipSonaInput: { type: Boolean, default: false },
+    finalMessage: { type: String, default: '' }
   },
   data() {
     return {
