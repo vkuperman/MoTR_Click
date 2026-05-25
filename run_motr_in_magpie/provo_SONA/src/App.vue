@@ -168,11 +168,10 @@
   <button style= "bottom:30%; transform: translate(-50%, -50%)" @click="$magpie.saveAndNextScreen();">Submit</button>
 </Screen>
 
-    <ExportReportsScreen
-      :skip-sona-input="true"
-      :stay-on-final-slide="true"
-      final-message="Thank you for participating. You may now close this page."
-    />
+    <ExportReportsScreen :skip-sona-input="true" />
+    <Screen title="Thank you">
+      <p>Thank you for participating. You may now close this page.</p>
+    </Screen>
   </Experiment>
 </template>
 

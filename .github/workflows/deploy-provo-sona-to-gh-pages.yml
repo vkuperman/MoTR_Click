@@ -1,0 +1,32 @@
+name: Build and Deploy Provo SONA to GitHub Pages
+on:
+  push:
+    branches: [ main, MoTR_Emalie ]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install and Build Provo SONA
+        run: |
+          cd run_motr_in_magpie/provo_SONA
+          npm install
+          npm run build
+
+      - name: Add .nojekyll for GitHub Pages
+        run: touch run_motr_in_magpie/provo_SONA/dist/.nojekyll
+
+      - name: Deploy Provo SONA to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: run_motr_in_magpie/provo_SONA/dist
+          destination_dir: provo_SONA
+          keep_files: true
